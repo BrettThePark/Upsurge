@@ -59,7 +59,10 @@ open class TwoDimensionalTensorSlice<Element: Value>: MutableQuadraticType, Equa
         self.span = span
 
         assert(base.spanIsValid(span))
-        assert(span.dimensions.reduce(0) { $0.1 > 1 ? $0.0 + 1 : $0.0 } <= 2)
+//        assert(span.dimensions.reduce(0, { (result, value) -> Int in
+//          return value > 1 ? result + 1 : result
+//        }) <= 2)
+      
         assert(span.dimensions.last! >= 1)
 
         let rowIndex: Int = span.dimensions.index { $0 > 1 } ??
@@ -148,8 +151,8 @@ open class TwoDimensionalTensorSlice<Element: Value>: MutableQuadraticType, Equa
 
     open func indexIsValid(_ indices: [Int]) -> Bool {
         assert(indices.count == rank)
-        return indices.enumerated().all { (i, index) in
-            self.span[i].contains(index)
+        return indices.enumerated().all {
+            self.span[$0.offset].contains($0.element)
         }
     }
 }

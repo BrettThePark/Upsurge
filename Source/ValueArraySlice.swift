@@ -135,7 +135,7 @@ public struct ValueArraySlice<Element: Value>: MutableLinearType, CustomStringCo
 
     public static func == (lhs: ValueArraySlice, rhs: ValueArraySlice) -> Bool {
         return lhs.count == rhs.count && zip(lhs.indices, rhs.indices).all {
-             lhs[$0] == rhs[$1]
+             lhs[$0.0] == rhs[$0.1]
         }
     }
 }

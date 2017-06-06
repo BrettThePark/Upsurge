@@ -137,9 +137,9 @@ open class MatrixSlice<Element: Value>: MutableQuadraticType, CustomStringConver
 
     open func indexIsValid(_ indices: [Int]) -> Bool {
         assert(indices.count == dimensions.count)
-        return indices.enumerated().all { (i, index) in
-            self.span[i].contains(index)
-        }
+      return indices.enumerated().all(predicate: { (value) -> Bool in
+            self.span[value.element].contains(value.offset)
+        })
     }
 
     open var description: String {
@@ -170,27 +170,27 @@ extension MatrixSlice {
 
     public static func == (lhs: MatrixSlice, rhs: Matrix<Element>) -> Bool {
         assert(lhs.span ≅ rhs.span)
-        return zip(lhs.span, rhs.span).all { lhs[$0] == rhs[$1] }
+        return zip(lhs.span, rhs.span).all { lhs[$0.0] == rhs[$0.1] }
     }
 
     public static func == (lhs: MatrixSlice, rhs: MatrixSlice) -> Bool {
         assert(lhs.span ≅ rhs.span)
-        return zip(lhs.span, rhs.span).all { lhs[$0] == rhs[$1] }
+        return zip(lhs.span, rhs.span).all { lhs[$0.0] == rhs[$0.1] }
     }
 
     public static func == (lhs: MatrixSlice, rhs: Tensor<Element>) -> Bool {
         assert(lhs.span ≅ rhs.span)
 
-        return zip(lhs.span, rhs.span).all { lhs[$0] == rhs[$1] }
+        return zip(lhs.span, rhs.span).all { lhs[$0.0] == rhs[$0.1] }
     }
 
     public static func == (lhs: MatrixSlice, rhs: TensorSlice<Element>) -> Bool {
         assert(lhs.span ≅ rhs.span)
-        return zip(lhs.span, rhs.span).all { lhs[$0] == rhs[$1] }
+        return zip(lhs.span, rhs.span).all { lhs[$0.0] == rhs[$0.1] }
     }
 
     public static func == (lhs: MatrixSlice, rhs: TwoDimensionalTensorSlice<Element>) -> Bool {
         assert(lhs.span ≅ rhs.span)
-        return zip(lhs.span, rhs.span).all { lhs[$0] == rhs[$1] }
+        return zip(lhs.span, rhs.span).all { lhs[$0.0] == rhs[$0.1] }
     }
 }

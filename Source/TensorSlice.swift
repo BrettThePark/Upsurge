@@ -126,12 +126,12 @@ open class TensorSlice<Element: Value>: MutableTensorType, Equatable {
 
     open func indexIsValid(_ indices: [Int]) -> Bool {
         assert(indices.count == dimensions.count)
-        return indices.enumerated().all { (i, index) in self.span[i].contains(index) }
+        return indices.enumerated().all { value in self.span[value.offset].contains(value.element) }
     }
 }
 
 // MARK: - Equatable
 
 public func ==<L: TensorType, R: TensorType>(lhs: L, rhs: R) -> Bool where L.Element == R.Element, L.Element: Equatable {
-    return lhs.span ≅ rhs.span && zip(lhs.span, rhs.span).all { lhs[$0] == rhs[$1] }
+    return lhs.span ≅ rhs.span && zip(lhs.span, rhs.span).all { lhs[$0.0] == rhs[$0.1] }
 }

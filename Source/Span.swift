@@ -20,10 +20,11 @@
 
 /// Span is a collection of Ranges to specify a multi-dimensional slice of a Tensor.
 public struct Span: ExpressibleByArrayLiteral, Sequence {
-    public typealias Element = CountableClosedRange<Int>
-
-    private var ranges: [Element]
-
+    public typealias Element = [Int]
+  
+    public typealias RangeElement = CountableClosedRange<Int>
+    public var ranges: [RangeElement]
+  
     public var startIndex: [Int] {
         return ranges.map { $0.lowerBound }
     }
@@ -44,29 +45,29 @@ public struct Span: ExpressibleByArrayLiteral, Sequence {
         return ranges.map { $0.count }
     }
 
-    public init(ranges: [Element]) {
+    public init(ranges: [RangeElement]) {
         self.ranges = ranges
     }
 
-    public init(arrayLiteral elements: Element...) {
+    public init(arrayLiteral elements: RangeElement...) {
         self.init(ranges: elements)
     }
 
     public init(base: Span, intervals: [IntervalType]) {
         assert(base.contains(intervals))
-        var ranges = [Element]()
+        var ranges = [RangeElement]()
 
         for (i, interval) in intervals.enumerated() {
-            let start = interval.start ?? base[i].lowerBound
-            let end = interval.end ?? base[i].upperBound + 1
+            let start = interval.start ?? base.ranges[i].start ?? 0
+            let end = interval.end ?? base.ranges[i].end ?? start + 1
             assert(base[i].lowerBound <= start && end <= base[i].upperBound + 1)
-            ranges.append(start ... end - 1)
+            ranges.append(start ... end)
         }
         self.init(ranges: ranges)
     }
 
     public init(dimensions: [Int], intervals: [IntervalType]) {
-        var ranges = [Element]()
+        var ranges = [RangeElement]()
         for i in 0..<intervals.count {
             let start = intervals[i].start ?? 0
             let end = intervals[i].end ?? dimensions[i]
@@ -82,11 +83,11 @@ public struct Span: ExpressibleByArrayLiteral, Sequence {
     }
 
     public init(start: [Int], end: [Int]) {
-        ranges = zip(start, end).map { $0...$1 - 1 }
+        ranges = zip(start, end).map { $0.0...$0.1 - 1 }
     }
 
     public init(start: [Int], length: [Int]) {
-        let end = zip(start, length).map { $0 + $1 }
+        let end = zip(start, length).map { $0.0 + $0.1 }
         self.init(start: start, end: end)
     }
 
@@ -94,15 +95,15 @@ public struct Span: ExpressibleByArrayLiteral, Sequence {
         return SpanGenerator(span: self)
     }
 
-    public subscript(index: Int) -> Element {
+    public subscript(index: Int) -> RangeElement {
         return ranges[index]
     }
 
-    public subscript(range: ClosedRange<Int>) -> ArraySlice<Element> {
+    public subscript(range: ClosedRange<Int>) -> ArraySlice<RangeElement> {
         return ranges[range]
     }
 
-    public subscript(range: Range<Int>) -> ArraySlice<Element> {
+    public subscript(range: Range<Int>) -> ArraySlice<RangeElement> {
         return ranges[range]
     }
 
